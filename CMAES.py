@@ -213,7 +213,7 @@ class Optimizer():
                                             # Eq. 42
 
                 # Adapt covariance matrix C               
-                self.C = (1.0-self.c_1-self.c_mu)*self.C + self.c_1*(np.dot(self.p_c,self.p_c.T) + (1.0-self.h_sig)*self.c_c*(2.0-self.c_c)*self.C) + self.c_mu*np.dot(np.dot((np.dot(self.B_D, self.z[indices[:self.mu]].T)),np.diag(self.weights)),(np.dot(self.B_D, self.z[indices[:self.mu]].T)).T)
+                self.C = (1.0-self.c_1-self.c_mu)*self.C + self.c_1*(np.outer(self.p_c,self.p_c) + (1.0-self.h_sig)*self.c_c*(2.0-self.c_c)*self.C) + self.c_mu*np.dot(np.dot((np.dot(self.B_D, self.z[indices[:self.mu]].T)),np.diag(self.weights)),(np.dot(self.B_D, self.z[indices[:self.mu]].T)).T)
                                             # regard old matrix plus rank one update plus minor correction plus rank mu update, Eq. 43
 
                 # Adapt step-size sigma
@@ -224,9 +224,7 @@ class Optimizer():
                 if i_count - self.i_eigen > self.lambda_/(self.c_1+self.c_mu)/self.N_dim/10.0:
                                             # to achieve O(N**2)
                     self.i_eigen = i_count
-                    self.C = np.triu(self.C) + np.triu(self.C,1).T
-                                            # enforce symmetry
-                    self.D, self.B = np.linalg.eig(self.C) # eigen decomposition, B==normalized eigenvectors?
+                    self.D, self.B = np.linalg.eigh(self.C) # eigen decomposition, B==normalized eigenvectors
                     self.D = np.diag(np.sqrt(self.D))
                                             # D contains standard deviations now
                     self.B_D = np.dot(self.B, self.D)
